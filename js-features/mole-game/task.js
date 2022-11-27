@@ -2,9 +2,8 @@ class MoleGame {
   constructor() {
     this.deadMoleCounterField = document.getElementById('dead');
     this.lostCounterField = document.getElementById('lost');
-    this.resetGame();
-    this.holeFieldElement = document.querySelector('.hole-game');
-    this.holeFieldElement.addEventListener('click', this.clickAction.bind(this));
+    this.resetGame();    
+    document.querySelector('.hole-game').addEventListener('click', this.clickAction.bind(this));
   }
 
   resetGame() {
@@ -22,12 +21,12 @@ class MoleGame {
     }
 
     if (this.isWinGame()) {
-      alert('Вы попедили !!!');
+      alert('Вы победили !!!');
       this.resetGame();
     }
 
     if (this.isLostGame()) {
-      alert('Вы проиграли ((');
+      alert('Вы проиграли :((');
       this.resetGame();
     }
   }

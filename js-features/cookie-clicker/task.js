@@ -36,7 +36,7 @@ class CookieClicker {
   endGame() {
     if (confirm('Вы уверены, что хотите завершить игру ?')) {      
       alert(`Вы сделали: ${this.clickerCounterElement.innerText} кликов. 
-            Ваша максимальная скорость: ${this.maxClickSpeed}`);
+            Ваша максимальная скорость: ${this.maxClickSpeed} кликов в сек.`);
       this.cardElement.style.display = 'none';
       this.resetGameData();
     }    

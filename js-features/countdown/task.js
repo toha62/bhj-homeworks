@@ -1,21 +1,20 @@
-class CountdownTimer {
-  timerId = null;
-
-  constructor(element) {
-    this.element = element;
+class CountdownTimer {  
+  constructor(timerId) {
+    this.element = document.getElementById(timerId);
     this.timerValue = this.element.innerText;
-
   }  
+
+  timerId = null;
 
   startTimer() {
     if (this.isTimerValueValid()) {      
-      this.element.innerText = this.getHMSFromSeconds(this.timerValue--);
+      this.renderTimerValue(this.timerValue--);
       this.timerId = setInterval(() => {
         if (this.timerValue === 0) {    
           clearInterval(this.timerId);
           alert('Вы победили в конкурсе!');
         }
-        this.element.innerText = this.getHMSFromSeconds(this.timerValue--);
+        this.renderTimerValue(this.timerValue--);
       }, 1000);
     }
   }
@@ -26,6 +25,10 @@ class CountdownTimer {
       return false;
     }
     return true;
+  }
+
+  renderTimerValue(value) {
+    this.element.innerText = this.getHMSFromSeconds(value);
   }
 
   getHMSFromSeconds(rawSeconds) {  
@@ -44,5 +47,5 @@ class CountdownTimer {
 // для красоты, со значением 400рх значение таймера не умещается, происходит перенос
 document.querySelector('.card').style.width = '405px';
 
-const countdownTimer = new CountdownTimer(document.getElementById('timer'));
+const countdownTimer = new CountdownTimer('timer');
 countdownTimer.startTimer();

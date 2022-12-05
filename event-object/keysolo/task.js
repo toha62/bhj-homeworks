@@ -4,26 +4,52 @@ class Game {
     this.wordElement = container.querySelector('.word');
     this.winsElement = container.querySelector('.status__wins');
     this.lossElement = container.querySelector('.status__loss');
-
+    this.timerElement = container.querySelector('.status__timer');
+    this.intervalId = null;
+        
     this.reset();
 
     this.registerEvents();
   }
 
   reset() {
-    this.setNewWord();
+    this.setNewWord();    
     this.winsElement.textContent = 0;
     this.lossElement.textContent = 0;
+    
+    this.resetTimer();
   }
 
-  registerEvents() {
-    /*
-      TODO:
-      Написать обработчик события, который откликается
-      на каждый введённый символ.
-      В случае правильного ввода слова вызываем this.success()
-      При неправильном вводе символа - this.fail();
-     */
+  registerEvents() {    
+    document.addEventListener('keydown', this.keyPressAction.bind(this));
+  }
+
+  keyPressAction(event) {    
+    const pressedKey = event.key.toLowerCase();
+
+    if (!(event.ctrlKey || event.metaKey || event.altKey || event.shiftKey)) {      
+      if (this.currentSymbol.textContent.toLowerCase() === pressedKey) {
+        this.success();
+      } else {
+        this.fail();
+      }
+    }    
+  }
+
+  resetTimer() {
+    this.timerElement.textContent = this.wordLength;
+
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+    this.intervalId = setInterval(this.timerAction.bind(this), 1000);
+  }
+
+  timerAction() {    
+    if (--this.timerElement.textContent === 0) {      
+      alert('Вы проиграли!');      
+      this.reset();
+    }
   }
 
   success() {
@@ -33,23 +59,27 @@ class Game {
       return;
     }
 
-    if (++this.winsElement.textContent === 10) {
+    if (++this.winsElement.textContent === 2) {      
       alert('Победа!');
       this.reset();
     }
     this.setNewWord();
+    this.resetTimer();
   }
 
   fail() {
-    if (++this.lossElement.textContent === 5) {
+    if (++this.lossElement.textContent === 5) {      
       alert('Вы проиграли!');
       this.reset();
     }
     this.setNewWord();
+    this.resetTimer();
   }
 
   setNewWord() {
     const word = this.getWord();
+
+    this.wordLength = word.length;
 
     this.renderWord(word);
   }
@@ -86,5 +116,5 @@ class Game {
   }
 }
 
-new Game(document.getElementById('game'))
+const game = new Game(document.getElementById('game'));
 

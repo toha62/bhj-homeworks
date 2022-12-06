@@ -46,9 +46,8 @@ class Game {
   }
 
   timerAction() {    
-    if (--this.timerElement.textContent === 0) {      
-      alert('Вы проиграли!');      
-      this.reset();
+    if (--this.timerElement.textContent === 0) {    
+      this.fail(); 
     }
   }
 

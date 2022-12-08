@@ -1,19 +1,27 @@
 class BooksReader {
   constructor(bookId) {
-    const controlsElement = document.getElementById(bookId).querySelector('.book__controls');
-    const contentElement = document.getElementById(bookId).querySelector('.book__content');
-    controlsElement.onselectstart = () => false;
+    this.mainContainer = document.getElementById(bookId);
+    const controlsElement = this.mainContainer.querySelector('.book__controls');
+    this.controlsData = {
+      'control_font-size': {
+        activeClass: 'font-size_active',
+        dataset: 'size',
+        prefix: 'book_fs-',
+      },
+      'control_color': {
+        activeClass: 'color_active',
+        dataset: 'textColor',
+        prefix: 'book_color-',
+      },
+      'control_background': {
+        activeClass: 'color_active',
+        dataset: 'bgColor',
+        prefix: 'book_bg-',
+      },
+    }
 
-    // this.tabList = tabsElement.querySelectorAll('.tab');
-    // this.tabContentList = tabsElement.querySelectorAll('.tab__content');
-    // this.activeTab = tabsElement.querySelector('.tab_active');
-    // this.activeTabIndex = this.findTabIndex(this.activeTab);
-    
-    this.setEventListener(controlsElement);
-
-    // controlsElement.querySelector('.book__control_font-size').addEventListener('click', this.clickOnControlsAction.bind(this));
-    // controlsElement.querySelector('.book__control_color').addEventListener('click', this.clickOnControlsAction.bind(this));
-    // controlsElement.querySelector('.book__control_background').addEventListener('click', this.clickOnControlsAction.bind(this));
+    controlsElement.onselectstart = () => false;                  
+    this.setEventListener(controlsElement);    
   }
 
   setEventListener(container) {
@@ -24,60 +32,41 @@ class BooksReader {
     }
   }
 
-  clickOnControlsAction(event) {    
+  clickOnControlsAction(event) {      
+    const targetElement = event.target;
+    this.currentActiveContainer = event.currentTarget; 
+
     event.preventDefault();
+      
+    this.currentActiveControlElement = this.getActiveControlElement(this.currentActiveContainer.querySelectorAll('a'));
 
-    const container = event.currentTarget;   
-    const activeControlElemen = this.getActiveControlElement(container.querySelectorAll('a'))
+    if (targetElement !== this.currentActiveControlElement && targetElement.tagName === 'A') {
+      const classModificator=this.getActiveControlElementClassModificator();
 
-    if (event.target !== activeControlElemen && event.target.tagName === 'A') {
-      let activeClass;
-      const controlType = this.getControlType(container);
-      console.log(controlType, event.currentTarget, event);
-
-      switch (controlType) {
-        case 'font-size':
-          activeClass = 'font-size_active';
-          break;
-        case 'color':
-          activeClass = 'color_active';          
-          break;
-        case 'background':
-          activeClass = 'color_active';
-          break;
-      }
-
-      this.removeActiveControlFromElement(activeControlElemen, activeClass);
-      this.setActiveControlOnElement(event.target, activeClass);
-    }     
-
-    // console.log(event.target.closest('.book__control').querySelectorAll('a'));
-    // console.log(this.getActiveControlElement(event.target.closest('.book__control').querySelectorAll('a')));
-    
-  }
-
-  getControlType(element) {
-    const classString = element.classList.value;
-
-    return classString.slice(classString.indexOf('book__control_') + 'book__control_'.length);
+      this.toggleActiveControlElement(targetElement, this.controlsData[classModificator].activeClass);       
+      this.resetStyleModificator(classModificator);
+      this.setStyleModificator(classModificator);           
+    } 
   }
 
   getActiveControlElement(elementsList) {
-    for (let i = 0; i < elementsList.length; i++) {
-      if (this.isElementHaveActiveClass(elementsList[i])) {
-        return elementsList[i];
-      }      
-    }
-    return null;
+    return [...elementsList].find(item => this.isElementHaveActiveClass(item));    
   }
 
   isElementHaveActiveClass(element) {
-    for (let i = 0; i < element.classList.length; i++) {
-      if (element.classList[i].includes('active')) {
-        return true;
-      }
-    }
-    return false;
+    return [...element.classList].find(item => item.includes('active'));    
+  }
+
+  getActiveControlElementClassModificator() {
+    let startIndex = this.currentActiveContainer.className.indexOf('control_');
+
+    return this.currentActiveContainer.className.slice(startIndex);
+  }
+
+  toggleActiveControlElement(targetElement, activeClass) {
+    this.removeActiveControlFromElement(this.currentActiveControlElement, activeClass);
+    this.currentActiveControlElement = targetElement;
+    this.setActiveControlOnElement(this.currentActiveControlElement, activeClass);
   }
 
   setActiveControlOnElement(element, activeClass) {
@@ -86,8 +75,38 @@ class BooksReader {
 
   removeActiveControlFromElement(element, activeClass) {
     element.classList.remove(activeClass);
+  } 
+
+  setStyleModificator(classModificator) {
+    const datasetPostfix = this.controlsData[classModificator].dataset;
+    const datasetPrefix = this.controlsData[classModificator].prefix;
+
+    if (this.currentActiveControlElement.dataset[datasetPostfix]) {
+      this.mainContainer.classList.add(datasetPrefix + this.currentActiveControlElement.dataset[datasetPostfix]);
+    }
   }
 
+  resetStyleModificator(classModificator) {
+    const classNameString = this.mainContainer.className;
+    const datasetPrefix = this.controlsData[classModificator].prefix;
+
+    let startIndex = classNameString.indexOf(datasetPrefix);
+
+    if (startIndex === -1) {
+      return;
+    }
+
+    let removingClass;    
+    let endIndex = classNameString.indexOf(' ', startIndex);
+
+    if (endIndex === -1) {
+      removingClass = classNameString.slice(startIndex);
+    } else {
+      removingClass = classNameString.slice(startIndex, endIndex);
+    }
+    
+    this.mainContainer.classList.remove(removingClass);
+  }
 }
 
-const b = new BooksReader('book');
+new BooksReader('book');

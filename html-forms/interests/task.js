@@ -1,69 +1,64 @@
 class Checkbox {
   constructor(checkboxContainer) {
-    const container = document.querySelector(`.${checkboxContainer}`);
+    const checkbox = document.querySelector(`.${checkboxContainer}`).querySelector('ul');    
 
-    this.checkboxList = container.querySelector('ul');
-
-    this.checkboxList.addEventListener('change', this.clickAction.bind(this));
-
-    // console.log(this.checkboxList, this.checkboxList.children);
-    this.checkboxStructure = [];
-    // this.init();
+    checkbox.addEventListener('change', this.clickAction.bind(this));    
   }
 
   clickAction(event) {    
-    const childElementList = event.target.closest('li').querySelector('ul');
-    const currentElementsList = event.target.closest('ul').children;
-    const parentElement =  event.target.closest('ul').parentElement;
+    const childList = event.target.closest('li').querySelector('ul');    
+    const currentList = event.target.closest('ul');    
 
-    this.doCheck(childElementList, event.target.checked);
-
-    if (parentElement.tagName != 'LI') {
-      return;
-    }
-    
-    console.log('continue');
-
-    let isChecked = true;
-    let isUnChecked = true;
-
-    for (let element of currentElementsList) {
-      const input = element.querySelector('input');
-      // console.log(input);
-      isChecked = isChecked && input.checked;
-      isUnChecked = isUnChecked && !input.checked;
-    }
-    console.log(isChecked, isUnChecked); 
-
-    parentElement.querySelector('input').indeterminate = false;
-    
-    if (isChecked) {
-      parentElement.querySelector('input').checked = true;
-    }
-
-    if (isUnChecked) {
-      parentElement.querySelector('input').checked = false;
-    }
-
-    if (!(isChecked || isUnChecked)) {
-      parentElement.querySelector('input').indeterminate = true;
-    }
+    this.doCheckInside(childList, event.target.checked);
+    this.doCheckOutside(currentList);
   }
 
-  doCheck(checkboxList, isChecked) {
+  doCheckInside(checkboxList, isChecked) {
     if (checkboxList) {
       for (let element of checkboxList.children) {        
         element.querySelector('input').checked = isChecked;
-        this.doCheck(element.querySelector('ul'), isChecked);
+        element.querySelector('input').indeterminate = false;
+        this.doCheckInside(element.querySelector('ul'), isChecked);
       }
     }
   }
 
-  init() {
-    for (element of this.checkboxList) {
+  doCheckOutside(elementList) {
+    let parentElement = elementList.parentElement;
+    
+    if (parentElement.tagName === 'LI') {
+      let currentLevelCheckBoxList = elementList.children;
+      let isChecked = true;
+      let isUnChecked = true;
+      let isIdeterminate = false;
+      
+      for (let element of currentLevelCheckBoxList) {
+        const input = element.querySelector('input');        
+        
+        isChecked = isChecked && input.checked;
+        isUnChecked = isUnChecked && !input.checked;
+        isIdeterminate = isIdeterminate || input.indeterminate;
+      }
+      
+      parentElement.querySelector('input').indeterminate = false;
+      
+      if (isChecked) {
+        parentElement.querySelector('input').checked = true;        
+      }
 
+      if (isUnChecked) {
+        parentElement.querySelector('input').checked = false;        
+      }
+
+      if (!(isChecked || isUnChecked) || isIdeterminate) {
+        parentElement.querySelector('input').indeterminate = true;        
+      }
+
+      this.doCheckOutside(parentElement.closest('ul'));
     }
+    
   }
+  
 }
 
 new Checkbox('card');
